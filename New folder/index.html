@@ -1,0 +1,725 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Happy Birthday, My Love ❤️</title>
+    <style>
+        *, *::before, *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --bg-dark: #07030d;
+            --purple-glow: #6e1a94;
+            --pink-glow: #e0218a;
+            --text-light: #f3f0f7;
+            --text-muted: #bdaec6;
+            --glass-bg: rgba(18, 10, 28, 0.65);
+            --glass-border: rgba(224, 33, 138, 0.25);
+            --font-main: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            background-image: 
+                radial-gradient(circle at 20% 30%, rgba(110, 26, 148, 0.2) 0%, transparent 40%),
+                radial-gradient(circle at 80% 70%, rgba(224, 31, 138, 0.18) 0%, transparent 45%);
+            color: var(--text-light);
+            font-family: var(--font-main);
+            overflow-x: hidden;
+            min-height: 100vh;
+        }
+
+        #stars-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        #password-gate {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(7, 3, 13, 0.96);
+            background-image: radial-gradient(circle at 50% 50%, rgba(110, 26, 148, 0.35) 0%, transparent 70%);
+            z-index: 10000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            transition: opacity 0.6s ease, transform 0.6s ease;
+        }
+
+        .gate-card {
+            background: rgba(20, 10, 32, 0.8);
+            border: 1px solid var(--glass-border);
+            padding: 40px 30px;
+            border-radius: 24px;
+            backdrop-filter: blur(15px);
+            max-width: 420px;
+            width: 100%;
+            text-align: center;
+            box-shadow: 0 0 40px rgba(224, 33, 138, 0.3);
+        }
+
+        .gate-icon {
+            font-size: 3.5rem;
+            margin-bottom: 15px;
+            animation: pulse 2s infinite ease-in-out;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); filter: drop-shadow(0 0 5px rgba(224,33,138,0.2)); }
+            50% { transform: scale(1.06); filter: drop-shadow(0 0 20px rgba(224,33,138,0.6)); }
+        }
+
+        .gate-title {
+            font-size: 1.6rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+            letter-spacing: 0.5px;
+        }
+
+        .gate-subtitle {
+            font-size: 0.95rem;
+            color: var(--text-muted);
+            margin-bottom: 25px;
+            line-height: 1.4;
+        }
+
+        .gate-input {
+            width: 100%;
+            background: rgba(25, 12, 38, 0.5);
+            border: 1px solid rgba(224, 33, 138, 0.3);
+            padding: 14px 20px;
+            border-radius: 50px;
+            color: white;
+            font-size: 1.2rem;
+            text-align: center;
+            outline: none;
+            transition: all 0.3s ease;
+            letter-spacing: 4px;
+        }
+
+        .gate-input:focus {
+            border-color: var(--pink-glow);
+            box-shadow: 0 0 15px rgba(224, 33, 138, 0.4);
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        .gate-btn {
+            background: linear-gradient(135deg, var(--pink-glow) 0%, var(--purple-glow) 100%);
+            color: white;
+            border: none;
+            width: 100%;
+            padding: 14px;
+            font-size: 1.05rem;
+            font-weight: 600;
+            border-radius: 50px;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(224, 33, 138, 0.4);
+            margin-top: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .gate-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(224, 33, 138, 0.6);
+        }
+
+        .error-message {
+            color: #ff4a4a;
+            font-size: 0.9rem;
+            margin-top: 12px;
+            display: none;
+            font-weight: 500;
+        }
+
+        #main-content {
+            opacity: 0;
+            transition: opacity 1s ease;
+            pointer-events: none;
+        }
+
+        .audio-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 100;
+            background: rgba(25, 12, 38, 0.85);
+            border: 1px solid var(--glass-border);
+            padding: 12px 20px;
+            border-radius: 50px;
+            backdrop-filter: blur(10px);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            box-shadow: 0 4px 25px rgba(0, 0, 0, 0.5);
+        }
+
+        .audio-btn {
+            background: linear-gradient(135deg, var(--pink-glow) 0%, var(--purple-glow) 100%);
+            border: none;
+            color: var(--text-light);
+            cursor: pointer;
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            box-shadow: 0 0 10px rgba(224, 33, 138, 0.4);
+        }
+
+        .audio-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 0 15px var(--pink-glow);
+        }
+
+        .audio-info {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .audio-status {
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--pink-glow);
+            font-weight: 700;
+        }
+
+        .audio-title {
+            font-size: 12px;
+            color: var(--text-muted);
+            max-width: 150px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .hero {
+            min-height: 100vh;
+            position: relative;
+            z-index: 2;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .heartbeat-icon {
+            font-size: 4.5rem;
+            animation: heartBeatAnimation 1.4s infinite ease-in-out;
+            margin-bottom: 20px;
+            filter: drop-shadow(0 0 20px var(--pink-glow));
+        }
+
+        @keyframes heartBeatAnimation {
+            0% { transform: scale(1); }
+            14% { transform: scale(1.25); }
+            28% { transform: scale(1); }
+            42% { transform: scale(1.2); }
+            70% { transform: scale(1); }
+        }
+
+        .neon-title {
+            font-size: clamp(2.5rem, 6vw, 4.5rem);
+            font-weight: 800;
+            letter-spacing: -1px;
+            background: linear-gradient(135deg, #ffffff 30%, #ffd0e8 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 30px rgba(224, 33, 138, 0.6);
+            margin-bottom: 15px;
+            line-height: 1.2;
+        }
+
+        .hero-subtitle {
+            font-size: clamp(1.1rem, 2vw, 1.5rem);
+            color: var(--text-muted);
+            max-width: 650px;
+            margin-bottom: 35px;
+            font-weight: 300;
+            line-height: 1.6;
+        }
+
+        .cta-btn {
+            background: linear-gradient(135deg, var(--pink-glow) 0%, var(--purple-glow) 100%);
+            color: white;
+            border: none;
+            padding: 16px 38px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            border-radius: 50px;
+            cursor: pointer;
+            box-shadow: 0 0 25px rgba(224, 33, 138, 0.5);
+            transition: all 0.3s ease;
+        }
+
+        .cta-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 0 35px rgba(224, 33, 138, 0.8);
+        }
+
+        .section-container {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 80px 20px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .section-title {
+            text-align: center;
+            font-size: 2.2rem;
+            margin-bottom: 40px;
+            font-weight: 700;
+            position: relative;
+            letter-spacing: 1px;
+        }
+
+        .section-title::after {
+            content: '';
+            display: block;
+            width: 60px;
+            height: 3px;
+            background: linear-gradient(90deg, var(--pink-glow), var(--purple-glow));
+            margin: 12px auto 0 auto;
+            border-radius: 2px;
+        }
+
+        .letter-card {
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
+            padding: 45px;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(12px);
+            max-width: 750px;
+            margin: 0 auto;
+            position: relative;
+        }
+
+        .letter-text {
+            font-size: 1.25rem;
+            line-height: 1.9;
+            color: var(--text-light);
+            min-height: 180px;
+            white-space: pre-wrap;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+        }
+
+        .cursor {
+            display: inline-block;
+            width: 2px;
+            background-color: var(--pink-glow);
+            animation: blink 0.8s infinite;
+            margin-left: 2px;
+            vertical-align: middle;
+        }
+
+        @keyframes blink {
+            50% { opacity: 0; }
+        }
+
+        .surprise-wrapper {
+            text-align: center;
+            max-width: 650px;
+            margin: 0 auto;
+        }
+
+        .surprise-box {
+            background: linear-gradient(145deg, rgba(30,12,48,0.8) 0%, rgba(15,6,26,0.9) 100%);
+            border: 2px dashed rgba(224, 33, 138, 0.4);
+            border-radius: 20px;
+            padding: 50px 30px;
+            cursor: pointer;
+            transition: all 0.4s ease;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+
+        .surprise-box:hover {
+            border-color: var(--pink-glow);
+            box-shadow: 0 0 35px rgba(224, 33, 138, 0.3);
+            transform: scale(1.02);
+        }
+
+        .gift-icon {
+            font-size: 4.5rem;
+            margin-bottom: 20px;
+            display: inline-block;
+            animation: wobble 2s infinite ease-in-out;
+        }
+
+        @keyframes wobble {
+            0%, 100% { transform: rotate(0deg) scale(1); }
+            25% { transform: rotate(-8deg) scale(1.05); }
+            75% { transform: rotate(8deg) scale(1.05); }
+        }
+
+        .surprise-title {
+            font-size: 1.4rem;
+            color: var(--text-light);
+            font-weight: 600;
+        }
+
+        .hidden-message {
+            display: none;
+            font-size: 1.3rem;
+            line-height: 1.8;
+            color: #ffe6f2;
+            text-shadow: 0 0 10px rgba(224,33,138,0.4);
+            animation: fadeIn 0.8s ease forwards;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(15px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .outro {
+            padding: 120px 20px;
+            text-align: center;
+            background: linear-gradient(to bottom, transparent, #040108);
+            position: relative;
+            z-index: 2;
+        }
+
+        .outro-text {
+            font-size: clamp(1.5rem, 3.5vw, 2.5rem);
+            font-weight: 700;
+            background: linear-gradient(90deg, #fff, #ffd0e8, #fff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 25px rgba(224, 33, 138, 0.5);
+            margin-bottom: 20px;
+        }
+
+        .floating-heart-particle, .confetti-particle {
+            position: fixed;
+            pointer-events: none;
+            z-index: 9999;
+            animation: floatUp cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+        }
+
+        @keyframes floatUp {
+            0% {
+                transform: translateY(100vh) translateX(0) scale(0) rotate(0deg);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-10vh) translateX(var(--drift, 50px)) scale(var(--scale, 1)) rotate(var(--rotation, 360deg));
+                opacity: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <canvas id="stars-canvas"></canvas>
+
+    <div id="password-gate">
+        <div class="gate-card">
+            <div class="gate-icon">🔒✨</div>
+            <h2 class="gate-title">Secret Date Enter Karo</h2>
+            <p class="gate-subtitle">Please enter your special 4-digit key to unlock the birthday universe! ❤️</p>
+            <input type="password" id="secretPassword" class="gate-input" placeholder="••••" maxlength="4" onkeydown="if(event.key === 'Enter') verifyKey()">
+            <div class="error-message" id="errorMessage">Galat password h, firse try karo bacha! 🫣💗</div>
+            <button class="gate-btn" onclick="verifyKey()">Unlock Universe ✨</button>
+        </div>
+    </div>
+
+    <div id="main-content">
+        <div class="audio-container">
+            <button class="audio-btn" id="audioToggle" aria-label="Toggle Music">
+                <svg id="play-icon" width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M8 5v14l11-7z"/>
+                </svg>
+                <svg id="pause-icon" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="display: none;">
+                    <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>
+                </svg>
+            </button>
+            <div class="audio-info">
+                <span class="audio-status" id="audioStatus">Music Paused</span>
+                <span class="audio-title" title="Waalian">song.mp3</span>
+            </div>
+        </div>
+
+        <header class="hero">
+            <div class="heartbeat-icon">❤️</div>
+            <h1 class="neon-title">Happy Birthday My Love ❤️🎉</h1>
+            <p class="hero-subtitle">Today is all about celebrating the most incredible, beautiful, and radiant soul who lights up my entire universe.</p>
+            <button class="cta-btn" onclick="scrollToSurprise()">Open Your Surprise 🎁</button>
+        </header>
+
+        <section class="section-container">
+            <h2 class="section-title">A Message From My Heart</h2>
+            <div class="letter-card" id="letterSection">
+                <div class="letter-text" id="typedLetter"></div><span class="cursor" id="letterCursor"></span>
+            </div>
+        </section>
+
+        <section class="section-container" id="surprise-section">
+            <h2 class="section-title">Your Special Gift</h2>
+            <div class="surprise-wrapper">
+                <div class="surprise-box" id="surpriseBox" onclick="revealSurprise()">
+                    <div id="boxClosedState">
+                        <div class="gift-icon">🎁</div>
+                        <h3 class="surprise-title">Click to unwrap your special birthday surprise... ✨</h3>
+                    </div>
+                    <div class="hidden-message" id="boxOpenState">
+                        <p>🎂 Happy Birthday, beautiful! 🎉<br><br>
+                        You make every single day brighter just by being in it. Thank you for your warmth, your sweet smile, and your endless love. I am so unbelievably lucky to walk through life holding your hand. Here is to celebrating you today and creating a lifetime of memories together! ❤️✨</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <footer class="outro">
+            <p class="outro-text">You are my favorite person in the universe ❤️</p>
+            <div style="font-size: 1.5rem; margin-top: 15px; opacity: 0.85;">✨ Happy Birthday, Beautiful! ✨</div>
+        </footer>
+    </div>
+
+    <audio id="bgMusic" loop src="song.mp3"></audio>
+
+    <script>
+        const correctPassword = "2511"; 
+
+        function verifyKey() {
+            const entered = document.getElementById('secretPassword').value.trim();
+            const error = document.getElementById('errorMessage');
+            
+            if(entered === correctPassword) {
+                const gate = document.getElementById('password-gate');
+                gate.style.opacity = '0';
+                gate.style.transform = 'scale(0.9)';
+                setTimeout(() => { gate.remove(); }, 600);
+
+                const content = document.getElementById('main-content');
+                content.style.pointerEvents = 'auto';
+                content.style.opacity = '1';
+                
+                try {
+                    const music = document.getElementById('bgMusic');
+                    music.play().then(() => {
+                        document.getElementById('audioStatus').textContent = "Playing";
+                        document.getElementById('audioStatus').style.color = "#e0218a";
+                        document.getElementById('play-icon').style.display = "none";
+                        document.getElementById('pause-icon').style.display = "block";
+                    }).catch(()=>{});
+                } catch(e){}
+
+                observer.observe(document.getElementById('letterSection'));
+            } else {
+                error.style.display = 'block';
+                const card = document.querySelector('.gate-card');
+                card.style.transform = 'translateX(10px)';
+                setTimeout(()=> card.style.transform = 'translateX(-10px)', 100);
+                setTimeout(()=> card.style.transform = 'translateX(0)', 200);
+            }
+        }
+
+        const canvas = document.getElementById('stars-canvas');
+        const ctx = canvas.getContext('2d');
+        let stars = [];
+
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            initStars();
+        }
+
+        function initStars() {
+            stars = [];
+            const starCount = Math.floor((canvas.width * canvas.height) / 6000);
+            for(let i = 0; i < starCount; i++) {
+                stars.push({
+                    x: Math.random() * canvas.width,
+                    y: Math.random() * canvas.height,
+                    radius: Math.random() * 1.5,
+                    alpha: Math.random(),
+                    speed: 0.02 + Math.random() * 0.03
+                });
+            }
+        }
+
+        function drawStars() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.fillStyle = '#ffffff';
+            stars.forEach(star => {
+                star.alpha += star.speed;
+                if(star.alpha > 1 || star.alpha < 0) star.speed = -star.speed;
+                ctx.globalAlpha = Math.max(0.1, star.alpha);
+                ctx.beginPath();
+                ctx.arc(star.x, star.y, star.radius, 0, Math.PI * 2);
+                ctx.fill();
+            });
+            ctx.globalAlpha = 1.0;
+            requestAnimationFrame(drawStars);
+        }
+
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+        drawStars();
+
+        const bgMusic = document.getElementById('bgMusic');
+        const audioToggle = document.getElementById('audioToggle');
+        const audioStatus = document.getElementById('audioStatus');
+        const playIcon = document.getElementById('play-icon');
+        const pauseIcon = document.getElementById('pause-icon');
+
+        audioToggle.addEventListener('click', () => {
+            if (bgMusic.paused) {
+                bgMusic.play().then(() => {
+                    audioStatus.textContent = "Playing";
+                    audioStatus.style.color = "#e0218a";
+                    playIcon.style.display = "none";
+                    pauseIcon.style.display = "block";
+                }).catch(() => {});
+            } else {
+                bgMusic.pause();
+                audioStatus.textContent = "Music Paused";
+                audioStatus.style.color = "var(--pink-glow)";
+                playIcon.style.display = "block";
+                pauseIcon.style.display = "none";
+            }
+        });
+
+        // Boosted Particle Engine
+        function createBurst(type, x, y, count = 60) {
+            let options;
+            if(type === 'confetti') {
+                options = ['🎉', '🎊', '✨', '⚡', '🌟', '⭐', '🎈', '🍾', '💖', '💝', '🌸', '🔮'];
+            } else if(type === 'genz') {
+                options = ['💗', '🤌🏽', '😩', '🫠', '🧿', '✨', '🫀', '💋', '🫶🏻', '🪬', '💖', '🥰', '🥺', '🦋', '🧸', '🌈'];
+            } else {
+                options = ['❤️', '💖', '💝', '💕'];
+            }
+            
+            for(let i=0; i < count; i++) {
+                const p = document.createElement('div');
+                p.className = 'confetti-particle';
+                p.textContent = options[Math.floor(Math.random() * options.length)];
+                
+                // Maximized trajectory velocity arcs
+                const drift = (Math.random() - 0.5) * 700;
+                const scale = 0.6 + Math.random() * 1.8;
+                const rotation = 360 + Math.random() * 1080;
+                const duration = 2.0 + Math.random() * 3.0;
+
+                p.style.setProperty('--drift', `${drift}px`);
+                p.style.setProperty('--scale', scale);
+                p.style.setProperty('--rotation', `${rotation}deg`);
+                
+                p.style.left = `${x}px`;
+                p.style.top = `${y}px`;
+                p.style.fontSize = `${20 + Math.random() * 24}px`;
+                p.style.animationDuration = `${duration}s`;
+
+                document.body.appendChild(p);
+                setTimeout(() => p.remove(), duration * 1000);
+            }
+        }
+
+        setInterval(() => {
+            if(document.getElementById('main-content').style.opacity == "1") {
+                const randomX = Math.random() * window.innerWidth;
+                createBurst('heart', randomX, window.innerHeight - 50, 2);
+            }
+        }, 3000);
+
+        function scrollToSurprise() {
+            document.getElementById('surprise-section').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        let surpriseRevealed = false;
+        function revealSurprise() {
+            if(surpriseRevealed) return;
+            surpriseRevealed = true;
+
+            document.getElementById('boxClosedState').style.display = 'none';
+            document.getElementById('boxOpenState').style.display = 'block';
+            
+            const box = document.getElementById('surpriseBox');
+            const rect = box.getBoundingClientRect();
+            const centerX = rect.left + window.scrollX + (rect.width / 2);
+            const centerY = rect.top + window.scrollY + (rect.height / 2);
+
+            // Maximized concurrent multi-vector particle fountain (Over 350+ objects simulated live)
+            createBurst('confetti', centerX, centerY, 120);
+            createBurst('genz', centerX, centerY - 20, 110); 
+            createBurst('heart', centerX, centerY, 80);
+            
+            // Side cascading fountains
+            setTimeout(() => {
+                createBurst('genz', centerX - 150, centerY, 40);
+                createBurst('confetti', centerX + 150, centerY, 40);
+            }, 100);
+            
+            setTimeout(() => {
+                createBurst('confetti', centerX, centerY + 50, 40);
+            }, 250);
+
+            try {
+                if (bgMusic.paused) {
+                    bgMusic.play().then(() => {
+                        audioStatus.textContent = "Playing";
+                        audioStatus.style.color = "#e0218a";
+                        playIcon.style.display = "none";
+                        pauseIcon.style.display = "block";
+                    }).catch(() => {});
+                }
+            } catch(e) {}
+        }
+
+        const letterString = `iii lovveeee youuuu meraaa pyaaraa bachhaaa💗🤌🏽😩🫠🧿✨\n\ntummm mujhee itni pyaari lagtii ho😩🫠aurr mujheee hameshaa khusshh rakhtii hoo 🧿🪬\n\nikk mainn tumheeee bohott pareshaann krtaa hunn🙂‍↕️🙇🏽‍♂️prr mujhee tumhee irritate krnee mainn majaa bohottt aataa hh😚😋(i mean in a good way🤓)\n\nmainn chahtaaa hunnn ki hameshaa saath rahee 😭🧿🫠aurr tumm kabhiii bhii mujhsee durrr naa 😭🤧🙂‍↕️hooo...\n\nmainnn tumheee hameshaa khushhh rakhungaaa aurr pyaarrr krungaaa 🫀💋💗\n\nbtwww iii loveeeeeee jabb bhii tumm snaps bhejti hoo😩🫠🫀🤌🏽 vohh bhiii jydaaa likeee outfit of the dayyy🙇🏽‍♂️😽😩 anddd jabb bhii random like kahii bahr jaati hoo tbbbb🤌🏽🫶🏻`;
+
+        let letterIndex = 0;
+        const typedLetterElement = document.getElementById('typedLetter');
+        let typingStarted = false;
+
+        function typeLetter() {
+            if (letterIndex < letterString.length) {
+                let char = letterString.charAt(letterIndex);
+                if (char === '\\' && letterString.charAt(letterIndex+1) === 'n') {
+                    typedLetterElement.textContent += '\\n';
+                    letterIndex += 2;
+                } else {
+                    typedLetterElement.textContent += char;
+                    letterIndex++;
+                }
+                setTimeout(typeLetter, 45);
+            } else {
+                document.getElementById('letterCursor').style.display = 'none';
+            }
+        }
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if(entry.isIntersecting && !typingStarted && document.getElementById('main-content').style.opacity == "1") {
+                    typingStarted = true;
+                    typeLetter();
+                }
+            });
+        }, { threshold: 0.15 });
+    </script>
+</body>
+</html>
